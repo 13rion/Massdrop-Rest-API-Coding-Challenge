@@ -1,15 +1,11 @@
 # Massdrop-Rest-API-Coding-Challenge
 Create a job queue whose workers fetch data from a URL and store the results in a database.  The job queue should expose a REST API for adding jobs and checking their status / results.
 
-# Installation
+# Install & Run
 ```
 $ git clone https://github.com/brion-baskerville/Massdrop-Rest-API-Coding-Challenge.git
 $ cd Massdrop-Rest-API-Coding-Challenge
 $ npm install
-```
-
-# Run
-```
 $ node server.js
 ```
 

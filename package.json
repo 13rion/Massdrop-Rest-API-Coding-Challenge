@@ -1,0 +1,23 @@
+{
+  "name": "massdrop-job-queue-rest-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./server.js",
+  "scripts": {
+    "dev": "nodemon ./server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "moment": "^2.18.1",
+    "mongodb": "^2.2.30",
+    "request": "^2.81.0",
+    "request-promise-native": "^1.0.4",
+    "valid-url": "^1.0.9"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}

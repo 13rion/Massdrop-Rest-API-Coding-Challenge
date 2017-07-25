@@ -1,7 +1,7 @@
 ///
 // ROUTES.JS
 // Creates the available the routes for the REST API.
-// Links the http methods to their corresponding functions in controler.js.
+// Links the http methods to their corresponding functions in controller.js.
 ///
 
 //Dependencies

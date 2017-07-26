@@ -12,17 +12,21 @@ $ node server.js
 # API
 ##### POST
 ```
-localhost:8000/jobs
+localhost:8000/job
 ```
 ###### Successful Response
 ```
 {
-    "job id": "59777147b07b5b10813042ce"
+    "_id": "5977ddf978cd2e385d03e6e9",
+    "url": "https://www.google.com",
+    "status": "Pending",
+    "date": "July 25 2017, 5:10:33 PM",
+    "worker": 2
 }
 ```
 ##### GET
 ```
-localhost:8000/jobs/JOB_ID_GOES_HERE
+localhost:8000/job/JOB_ID_GOES_HERE
 ```
 ###### Successful Response
 ```
@@ -31,12 +35,13 @@ localhost:8000/jobs/JOB_ID_GOES_HERE
     "url": "https://www.google.com",
     "status": "Completed",
     "date": "July 25 2017, 9:26:47 AM", 
+    "worker": 1,
     "html": "<!doctype html><html>...</html>"
 }
 ```
 ##### DELETE
 ```
-localhost:8000/jobs/JOB_ID_GOES_HERE
+localhost:8000/job/JOB_ID_GOES_HERE
 ```
 ###### Successful Response
 ```
@@ -44,7 +49,7 @@ Job: 59777147b07b5b10813042ce deleted.
 ```
 ##### UPDATE
 ```
-localhost:8000/jobs/JOB_ID_GOES_HERE
+localhost:8000/job/JOB_ID_GOES_HERE
 ```
 ###### Successful Response
 ```
@@ -52,7 +57,8 @@ localhost:8000/jobs/JOB_ID_GOES_HERE
     "_id": "59777147b07b5b10813042ce",
     "url": "https://playoverwatch.com/en-us/career/pc/us/Skhy-1689",
     "status": "Completed",
-    "date": "July 25 2017, 9:26:47 AM", 
+    "date": "July 25 2017, 9:26:47 AM",
+    "worker": 3,
     "html": "<!doctype html><html>...</html>"
 }
 ```

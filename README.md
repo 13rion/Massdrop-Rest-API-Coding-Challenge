@@ -21,7 +21,7 @@ localhost:8000/job
     "url": "https://www.google.com",
     "status": "Pending",
     "date": "July 25 2017, 5:10:33 PM",
-    "worker": 2
+    "serverworker": 2
 }
 ```
 ##### GET
@@ -35,7 +35,7 @@ localhost:8000/job/JOB_ID_GOES_HERE
     "url": "https://www.google.com",
     "status": "Completed",
     "date": "July 25 2017, 9:26:47 AM", 
-    "worker": 1,
+    "serverworker": 1,
     "html": "<!doctype html><html>...</html>"
 }
 ```
@@ -45,7 +45,14 @@ localhost:8000/job/JOB_ID_GOES_HERE
 ```
 ###### Successful Response
 ```
-Job: 59777147b07b5b10813042ce deleted.
+{
+    "_id": "59777147b07b5b10813042ce",
+    "url": "https://playoverwatch.com/en-us/career/pc/us/Skhy-1689",
+    "status": "Completed",
+    "date": "July 25 2017, 9:26:47 AM",
+    "serverworker": 3,
+    "html": "<!doctype html><html>...</html>"
+}
 ```
 ##### UPDATE
 ```
@@ -58,7 +65,7 @@ localhost:8000/job/JOB_ID_GOES_HERE
     "url": "https://playoverwatch.com/en-us/career/pc/us/Skhy-1689",
     "status": "Completed",
     "date": "July 25 2017, 9:26:47 AM",
-    "worker": 3,
+    "serverworker": 3,
     "html": "<!doctype html><html>...</html>"
 }
 ```

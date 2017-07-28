@@ -4,7 +4,8 @@
 ///
 
 //Dependencies
-var mongoConnect	= require('./mongoConnect.js'),
+var mongoConnect	= require('./mongoConnect'),
+	Queue 			= require('bull'),
 	moment 			= require('moment'),
 	request 		= require('request-promise-native'),
 	valid			= require('valid-url'),
@@ -12,8 +13,10 @@ var mongoConnect	= require('./mongoConnect.js'),
 
 //Cluster
 var cluster = require('cluster');
-//Jobs database
-var jobs = mongoConnect.getDatabase().collection('jobs');
+//Job Queue
+var sendQueue = new Queue('jobs');
+//Job database
+var db = mongoConnect.getDatabase().collection('jobs');
 
 /**
  * GET
@@ -21,16 +24,17 @@ var jobs = mongoConnect.getDatabase().collection('jobs');
  * Retrieves a job given the job ID
  */
 exports.get = (req, res) => {
-	const id = req.params.id;
-	var data = { '_id' : new ObjectID(id) };
-	jobs.findOne(data, (error, item) => {
-		if(error) {
+	const id 	= req.params.id;
+	var query 	= { '_id' : new ObjectID(id) };
+
+	db.findOne(query)
+		.then( (result) => {
+			result.serverworker = cluster.worker.id;
+			res.send(result);
+		},
+		(error) => {
 			res.status(500).send({ error: 'An internal server error has occured.' });
-		} else {
-			item.worker = cluster.worker.id;
-			res.send(item);
-		}
-	});
+		});
 }
 
 /**
@@ -39,15 +43,21 @@ exports.get = (req, res) => {
  * Deletes a job given the job ID
  */
 exports.delete = (req, res) => {
-	const id = req.params.id;
-	var data = { '_id' : new ObjectID(id) };
-	jobs.remove(data, (error, item) => {
-		if(error) {
+	const id 	= req.params.id;
+	var query 	= { '_id' : new ObjectID(id) };
+
+	db.findOneAndDelete(query)
+		.then( (result) => {
+			if(result.value) {
+				result.value.serverworker = cluster.worker.id;
+				res.send(result.value);
+			} else {
+				res.send({ error: 'Cannot delete document.' });
+			}
+		},
+		(error) => {
 			res.status(500).send({ error: 'An internal server error has occured.' });
-		} else {
-			res.send('Job: ' + id + ' deleted.');
-		}
-	});
+		});
 }
 
 /**
@@ -56,16 +66,24 @@ exports.delete = (req, res) => {
  * Updates a pending job given the job ID and a URL
  */
 exports.put = (req, res) => {
-	const id = req.params.id;
-	var data = { '_id' : new ObjectID(id), 'status' : 'Pending' };
-	var job = { url: req.body.url };
-	jobs.update(data, job, (error, result) => {
-		if(error) {
+	if (!valid.isUri(req.body.url)) return res.status(400).send({ error: 'Invalid URL: ' + req.body.url });
+
+	const id 	= req.params.id;
+	var query 	= { '_id' : new ObjectID(id), 'status' : 'Pending' },
+		set 	= { $set: {url: req.body.url } };
+
+	db.findOneAndUpdate(query, set, { returnOriginal : false })
+		.then( (result) => {
+			if(result.value) {
+				result.value.serverworker = cluster.worker.id;
+				res.send(result.value);
+			} else {
+				res.send({ error: 'Cannot update document.' });
+			}
+		},
+		(error) => {
 			res.status(500).send({ error: 'An internal server error has occured.' });
-		} else {
-			res.send(job);
-		}
-	});
+		});
 }
 
 /**
@@ -77,29 +95,23 @@ exports.put = (req, res) => {
  */
 exports.post = (req, res) => {
 	if (!valid.isUri(req.body.url)) return res.status(400).send({ error: 'Invalid URL: ' + req.body.url });
-	var date = moment().format('MMMM DD YYYY, h:mm:ss A');
 
-	var data = { 
+	var doc = { 
 		url: req.body.url,
 		status: 'Pending',
-		date: date
+		date: moment().format('MMMM DD YYYY, h:mm:ss A')
 	}
 
-	jobs.insert(data, (error, result) => {
-		if(error) {
-			res.status(500).send({ error: 'An internal server error has occured.' });
-		} else {
-			result.ops[0].worker = cluster.worker.id;
+	db.insert(doc)
+		.then( (result) => {
+			result.ops[0].serverworker = cluster.worker.id;
 			res.send(result.ops[0]);
-			
-			request(data.url)
-			.then( (html) => {
-				data.status = 'Completed';
-				data.html = html;
-				jobs.update({'_id':result.ops[0]._id}, data, (error, result) => {
-					if(error) res.status(500).send({ error: 'An internal server error has occured.' });
-				});
-			});
-		}
-	});
+			return { id : result.ops[0]._id, url : result.ops[0].url };
+		},
+		(error) => {
+			res.status(500).send({ error: 'An internal server error has occured.' });			
+		})
+		.then( (result) => {
+			sendQueue.add(result, { jobId : result.id });
+		});
 }

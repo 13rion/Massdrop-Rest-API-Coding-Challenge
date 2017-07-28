@@ -5,20 +5,24 @@
 ///
 
 var cluster = require('cluster');
+var fork 	= require('child_process').fork;
 
 //Cluster - Master Process
 if(cluster.isMaster) {
-	//System CPUs
+	//Start Workers
+	fork('./worker/worker');
+
+	//System CPU core count
 	var cpuCount = require('os').cpus().length;
 
-	//Worker foreach CPU
+	//Worker for each CPU core
 	for(var i = 0; i < cpuCount; i += 1) {
 		cluster.fork();
 	}
 
 	//Create another worker if a worker dies
 	cluster.on('exit', (worker) => {
-		console.log('Worker ' + worker.id + ' died.')
+		console.log('Worker ' + worker.id + ' died.');
 		cluster.fork();
 	});
 
@@ -45,8 +49,7 @@ if(cluster.isMaster) {
 
 		//Tell the app to listen on the specified port
 		app.listen(port, () => {
-			// console.log('App is listening on ' + port);
-			console.log('Worker ' + cluster.worker.id + ' is running.');
+			console.log('Server Worker ' + cluster.worker.id + ' is listening on ' + port);
 		});
 	});
 }

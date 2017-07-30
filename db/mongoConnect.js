@@ -4,10 +4,13 @@
 ///
 
 //Dependencies
-var MongoClient = require('mongodb').MongoClient; //Database: MongoDB. NoSQL Database.
+const MongoClient = require('mongodb').MongoClient; //Database: MongoDB. NoSQL Database.
 
-var _db, //References the connected database
-	url = "mongodb://localhost:27017/jobs"; //URL where database lies
+//URL where database lies
+const url = "mongodb://localhost:27017/jobs";
+
+//References the connected database
+let _db;
 
 module.exports = {
 	//Connects to the database

@@ -5,7 +5,7 @@
 ///
 
 //Dependencies
-var controller	= require('./../db/controller');
+const controller	= require('./../db/controller');
 
 module.exports = (app) => {
 	app.route('/job/:id')
